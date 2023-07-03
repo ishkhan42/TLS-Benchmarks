@@ -6,7 +6,7 @@ FROM ubuntu:22.04
 
 # [Optional] Uncomment this section to install additional packages.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends gcc g++ git build-essential libbrotli-dev pkg-config libssl-dev net-tools gdb clang-format autoconf python3.10 python3-pip python3-dbg python3.10-dev sudo
+    && apt-get -y install --no-install-recommends gcc g++ git build-essential libbrotli-dev golang pkg-config libssl-dev net-tools gdb clang-format autoconf python3.10 python3-pip python3-dbg python3.10-dev sudo
 
 RUN useradd -ms /bin/bash vscode
 RUN usermod -aG sudo vscode

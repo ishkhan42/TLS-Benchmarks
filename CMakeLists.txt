@@ -33,6 +33,7 @@ endif()
 
 include(cmake/picotls.cmake)
 include(cmake/libressl.cmake)
+include(cmake/boringssl.cmake)
 
 add_executable(pico_openssl servers/pico_openssl.cpp)
 target_link_libraries(pico_openssl picotls-core picotls-openssl crypto)
@@ -43,6 +44,9 @@ target_link_libraries(pico_minicrypto picotls-core picotls-minicrypto crypto)
 add_executable(open_ssl servers/open.cpp)
 target_link_libraries(open_ssl ssl crypto)
 
+add_executable(boring_ssl servers/open.cpp)
+target_link_libraries(boring_ssl boringssl::ssl boringssl::crypto)
+
 add_executable(libre_ssl servers/libre.cpp)
-target_link_libraries(libre_ssl PRIVATE libressl::tls )
+target_link_libraries(libre_ssl libressl::tls)
 
