@@ -14,37 +14,6 @@ import fire
 
 PROCESS_ID = os.getpid()
 
-class CaseTest:
-    def __init__(self, uri: str = '127.0.0.1', port: int = 8000, identity: int = PROCESS_ID) -> None:
-        self.context = ssl.create_default_context()
-        self.context.check_hostname = False
-        self.context.verify_mode = ssl.CERT_NONE
-        self.client_socket = None
-        self.uri = uri
-        self.port = port
-
-    def sock_closed(self, sock):
-        return sock is None
-        if sock is None:
-            return True
-        sock.read(1, None)
-        return sock.pending() <= 0
-
-    def remake_socket(self):
-        if not self.sock_closed(self.client_socket):
-            return
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client_socket = self.context.wrap_socket(self.client_socket, server_hostname=self.uri)
-        self.client_socket.connect((self.uri, self.port))
-
-    def __call__(self) -> str:
-        self.remake_socket()
-
-        self.client_socket.sendall(b"Data")
-        self.client_socket.recv(4096)
-
-
-
 
 @dataclass
 class Stats:
@@ -165,13 +134,42 @@ def bench_parallel(
     )
 
 
+class Client:
+    def __init__(self, uri: str = '127.0.0.1', port: int = 8000, identity: int = PROCESS_ID) -> None:
+        self.context = ssl.create_default_context()
+        self.context.check_hostname = False
+        self.context.verify_mode = ssl.CERT_NONE
+        self.client_socket = None
+        self.uri = uri
+        self.port = port
+
+    def sock_closed(self, sock):
+        return sock is None
+        if sock is None:
+            return True
+        sock.read(1, None)
+        return sock.pending() <= 0
+
+    def remake_socket(self):
+        if not self.sock_closed(self.client_socket):
+            return
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket = self.context.wrap_socket(self.client_socket, server_hostname=self.uri)
+        self.client_socket.connect((self.uri, self.port))
+
+    def __call__(self) -> str:
+        self.remake_socket()
+        self.client_socket.sendall(b"Data")
+        self.client_socket.recv(4096)
+
+
 def main(
-    class_name: str,
+    class_name: str = "bench.Client",
     *,
     threads: int = 1,
     requests: int = 100_000,
     seconds: float = 10,
-    progress: bool = False,
+    progress: bool = True,
 ):
     class_ = locate(class_name)
     stats = bench_parallel(
